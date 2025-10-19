@@ -2,16 +2,10 @@ package com.example.voluntra_mad_project
 
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
-import android.view.Menu
-import android.view.MenuItem
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.voluntra_mad_project.databinding.ActivityMainBinding
 import com.example.voluntra_mad_project.models.Event
-import com.google.firebase.firestore.ktx.firestore
-import com.google.firebase.ktx.Firebase
 import org.osmdroid.config.Configuration
 import org.osmdroid.util.GeoPoint
 
@@ -31,7 +25,18 @@ class MainActivity : AppCompatActivity() {
 
         setupMap()
         setupRecyclerView()
-        loadEventsFromFirestore()
+        loadDummyData()
+
+        // This listener for the left button already exists
+        binding.profileButton.setOnClickListener {
+            startActivity(Intent(this, SettingsActivity::class.java))
+        }
+
+        // --- THIS IS THE NEW CODE ---
+        // Add a click listener to the right button to also open SettingsActivity
+        binding.filterButton.setOnClickListener {
+            startActivity(Intent(this, SettingsActivity::class.java))
+        }
     }
 
     private fun setupMap() {
@@ -42,7 +47,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setupRecyclerView() {
-        // The RecyclerView is inside the included layout, so we access it via binding.bottomSheet
         binding.bottomSheet.recyclerViewEvents.apply {
             layoutManager = LinearLayoutManager(this@MainActivity)
             eventsAdapter = EventsAdapter(emptyList())
@@ -50,35 +54,14 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun loadEventsFromFirestore() {
-        val db = Firebase.firestore
-        db.collection("events")
-            .get()
-            .addOnSuccessListener { result ->
-                val eventsList = result.toObjects(Event::class.java)
-                eventsAdapter.submitList(eventsList)
-                Log.d("MainActivity", "Successfully fetched ${eventsList.size} events.")
-            }
-            .addOnFailureListener { exception ->
-                Log.w("MainActivity", "Error getting documents.", exception)
-                Toast.makeText(this, "Failed to load events.", Toast.LENGTH_SHORT).show()
-            }
-    }
-
-    // --- Menu Handling ---
-    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        menuInflater.inflate(R.menu.main_menu, menu)
-        return true
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return when (item.itemId) {
-            R.id.menu_settings -> {
-                startActivity(Intent(this, SettingsActivity::class.java))
-                true
-            }
-            else -> super.onOptionsItemSelected(item)
-        }
+    private fun loadDummyData() {
+        val dummyEvents = listOf(
+            Event(id = "1", title = "Art Workshop at Gateway", organizationName = "Mumbai Arts Foundation", imageUrl = "https://i.imgur.com/L72E3qA.jpeg"),
+            Event(id = "2", title = "Heritage Walk in Fort", organizationName = "History Buffs Club", imageUrl = "https://i.imgur.com/bXn3pZv.jpeg"),
+            Event(id = "3", title = "Mangrove Cleanup Drive", organizationName = "Coastal Conservation Crew", imageUrl = "https://i.imgur.com/L72E3qA.jpeg"),
+            Event(id = "4", title = "Food Distribution for the Needy", organizationName = "Community Kitchen", imageUrl = "https://i.imgur.com/bXn3pZv.jpeg")
+        )
+        eventsAdapter.submitList(dummyEvents)
     }
 
     // --- Map Lifecycle ---
