@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "83835412801",
+    "project_id": "volunconnect-79630",
+    "storage_bucket": "volunconnect-79630.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:83835412801:android:d6783abac578ffa2e681c0",
+        "android_client_info": {
+          "package_name": "com.example.voluntra_mad_project"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCNbo5280pJlEBs3hNWvz1_Lh50D0x9sXY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

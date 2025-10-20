@@ -2,6 +2,11 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+
     <application
         android:name=".VolunConnectApplication"
         android:allowBackup="true"
@@ -16,16 +21,24 @@
 
         <activity
             android:name=".LoginActivity"
-            android:exported="false" />
-
-        <activity
-            android:name=".MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <activity
+            android:name=".RegisterActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".MainActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".OrganizerDashboardActivity"
+            android:exported="false" />
 
         <activity
             android:name=".SettingsActivity"
@@ -37,6 +50,17 @@
             android:name=".EventDetailActivity"
             android:exported="false"
             android:parentActivityName=".MainActivity"/>
+
+        <activity
+            android:name=".CreateEventActivity"
+            android:exported="false"
+            android:label="Create Event"
+            android:parentActivityName=".OrganizerDashboardActivity"/>
+
+        <activity
+            android:name=".PickLocationActivity"
+            android:exported="false"
+            android:label="Select Location" />
 
     </application>
 
