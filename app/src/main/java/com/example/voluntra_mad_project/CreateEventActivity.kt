@@ -17,7 +17,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.GeoPoint
 import java.text.SimpleDateFormat
-import java.util.* // Import Locale
+import java.util.*
 
 class CreateEventActivity : AppCompatActivity() {
 
@@ -28,7 +28,6 @@ class CreateEventActivity : AppCompatActivity() {
     private var eventLocation: GeoPoint? = null
     private var selectedDate: Calendar = Calendar.getInstance()
 
-    // Location picker launcher
     private val pickLocationLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         if (result.resultCode == Activity.RESULT_OK) {
             val data = result.data
@@ -92,16 +91,22 @@ class CreateEventActivity : AppCompatActivity() {
         )
     }
 
+    // Updated save function to fetch correct organizationName
     private fun saveEventToFirestore(
         title: String, category: String, eventTimestamp: Timestamp, location: GeoPoint,
         description: String, eventType: String, organizerId: String
     ) {
-        // Fetch the organizer's name first
+        // 1. Fetch the organizer's USER document
         firestore.collection("users").document(organizerId).get()
             .addOnSuccessListener { userDocument ->
-                val organizerName = userDocument?.getString("name") ?: "Unknown Organizer"
+                // 2. Get the "organizationName" field from their profile
+                val organizationName = if (userDocument != null && userDocument.exists()) {
+                    userDocument.getString("organizationName") ?: "Unnamed Organization" // Use org name
+                } else {
+                    "Unknown Organization" // Fallback
+                }
 
-                // Create the Event object
+                // 3. Create the Event object with the fetched organizationName
                 val newEvent = Event(
                     title = title,
                     category = category,
@@ -110,18 +115,16 @@ class CreateEventActivity : AppCompatActivity() {
                     description = description,
                     eventType = eventType,
                     organizerId = organizerId,
-                    organizationName = organizerName,
+                    organizationName = organizationName, // Use the fetched org name
                     skillsNeeded = null,
                     whatToBring = null,
-                    spotsAvailable = 50, // Example default
-
-                    // Populate lowercase fields
+                    spotsAvailable = 50,
                     title_lowercase = title.lowercase(Locale.getDefault()),
                     description_lowercase = description.lowercase(Locale.getDefault()),
-                    organizationName_lowercase = organizerName.lowercase(Locale.getDefault())
+                    organizationName_lowercase = organizationName.lowercase(Locale.getDefault())
                 )
 
-                // Save the event to Firestore
+                // 4. Save the event to the 'events' collection
                 firestore.collection("events")
                     .add(newEvent)
                     .addOnSuccessListener { documentReference ->
@@ -140,7 +143,7 @@ class CreateEventActivity : AppCompatActivity() {
             }
     }
 
-    // --- Date & Time Picker Logic ---
+    // --- Date & Time Picker Logic (Unchanged) ---
     private fun showDatePicker() {
         val currentCalendar = Calendar.getInstance()
         DatePickerDialog(this, { _, year, month, dayOfMonth ->
