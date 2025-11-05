@@ -18,23 +18,6 @@
             android:text="Create a New Event"
             android:textAppearance="?attr/textAppearanceHeadlineSmall" />
 
-        <com.google.android.material.imageview.ShapeableImageView
-            android:id="@+id/image_event_banner"
-            android:layout_width="match_parent"
-            android:layout_height="180dp"
-            android:background="?attr/colorSurfaceVariant"
-            android:scaleType="centerCrop"
-            app:shapeAppearanceOverlay="@style/ShapeAppearance.Material3.Corner.Medium" />
-
-        <Button
-            android:id="@+id/button_add_image"
-            style="@style/Widget.Material3.Button.OutlinedButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginTop="8dp"
-            android:text="Upload Event Image" />
-
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -65,7 +48,6 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:orientation="horizontal">
-
             <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -119,6 +101,17 @@
                 android:layout_height="wrap_content"
                 android:lines="4"
                 android:gravity="top"/>
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:hint="Type of Event (e.g., Direct Service, Fundraising)">
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/edit_text_event_type"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
         </com.google.android.material.textfield.TextInputLayout>
 
         <Button

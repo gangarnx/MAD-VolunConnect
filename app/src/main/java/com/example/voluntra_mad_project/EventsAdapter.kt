@@ -3,11 +3,16 @@ package com.example.voluntra_mad_project
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.bumptech.glide.Glide // THIS LINE WAS MISSING
+// import com.bumptech.glide.Glide // REMOVED
 import com.example.voluntra_mad_project.databinding.ItemEventCardBinding
 import com.example.voluntra_mad_project.models.Event
+import java.text.SimpleDateFormat
+import java.util.Locale
 
-class EventsAdapter(private var events: List<Event>) : RecyclerView.Adapter<EventsAdapter.EventViewHolder>() {
+class EventsAdapter(
+    private var events: List<Event>,
+    private val onItemClicked: (String) -> Unit
+) : RecyclerView.Adapter<EventsAdapter.EventViewHolder>() {
 
     inner class EventViewHolder(val binding: ItemEventCardBinding) : RecyclerView.ViewHolder(binding.root)
 
@@ -23,11 +28,22 @@ class EventsAdapter(private var events: List<Event>) : RecyclerView.Adapter<Even
         holder.binding.apply {
             eventTitle.text = event.title
             eventOrganization.text = event.organizationName
+            eventTag.text = event.category
 
-            Glide.with(holder.itemView.context)
-                .load(event.imageUrl)
-                .centerCrop()
-                .into(eventImage)
+            event.eventDate?.let {
+                val dateFormat = SimpleDateFormat("EEE, MMM d・h:mm a", Locale.getDefault())
+                eventDate.text = dateFormat.format(it)
+            } ?: run {
+                eventDate.text = "Date not set"
+            }
+
+            // Image loading REMOVED
+
+            root.setOnClickListener {
+                event.id?.let { id ->
+                    onItemClicked(id)
+                }
+            }
         }
     }
 

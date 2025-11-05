@@ -1,8 +1,8 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
-    id("kotlin-kapt")
-    id("com.google.gms.google-services")
+    // Removed kotlin-kapt
+    id("com.google.gms.google-services") // Required for Firebase Auth/Firestore
 }
 
 android {
@@ -57,10 +57,11 @@ dependencies {
     implementation(platform("com.google.firebase:firebase-bom:33.1.0"))
     implementation("com.google.firebase:firebase-auth-ktx")
     implementation("com.google.firebase:firebase-firestore-ktx")
+    // Removed implementation("com.google.firebase:firebase-storage-ktx")
 
-    // Image Loading (Glide)
-    implementation("com.github.bumptech.glide:glide:4.16.0")
-    kapt("com.github.bumptech.glide:compiler:4.16.0")
+    // Image Loading (Glide) - Removed
+    // implementation("com.github.bumptech.glide:glide:4.16.0")
+    // kapt("com.github.bumptech.glide:compiler:4.16.0")
 
     // Testing
     testImplementation(libs.junit)

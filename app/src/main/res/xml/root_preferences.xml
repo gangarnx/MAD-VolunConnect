@@ -20,5 +20,13 @@
             app:title="Enable event reminders" />
 
     </PreferenceCategory>
+    <PreferenceCategory app:title="Account">
+
+        <Preference
+            app:key="logout_preference"
+            app:title="Logout"
+            app:summary="Sign out of your account" />
+
+    </PreferenceCategory>
 
 </PreferenceScreen>

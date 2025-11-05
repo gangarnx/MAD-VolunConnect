@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fitsSystemWindows="true">
+    android:fitsSystemWindows="true"
+    tools:context=".MainActivity">
 
     <org.osmdroid.views.MapView
         android:id="@+id/map_view"
@@ -14,63 +16,74 @@
     <View
         android:layout_width="match_parent"
         android:layout_height="150dp"
-        android:background="@drawable/top_scrim_gradient" />
+        android:background="@drawable/top_scrim_gradient"
+        android:fitsSystemWindows="true"/>
 
-    <com.google.android.material.card.MaterialCardView
-        android:id="@+id/search_card"
-        android:layout_width="match_parent"
-        android:layout_height="56dp"
+    <LinearLayout
+        android:id="@+id/mapLegend"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="@drawable/rounded_corner_background"
+        android:padding="8dp"
+        android:layout_marginTop="130dp"
         android:layout_marginStart="16dp"
-        android:layout_marginTop="64dp"
-        android:layout_marginEnd="16dp"
-        app:cardBackgroundColor="?attr/colorSurfaceVariant" app:cardCornerRadius="28dp"
-        app:cardElevation="4dp"
-        app:strokeWidth="0dp">
+        android:elevation="4dp" /> <com.google.android.material.card.MaterialCardView
+    android:id="@+id/search_card"
+    android:layout_width="match_parent"
+    android:layout_height="56dp"
+    android:layout_marginStart="16dp"
+    android:layout_marginTop="64dp"
+    android:layout_marginEnd="16dp"
+    app:cardBackgroundColor="?attr/colorSurfaceVariant"
+    app:cardCornerRadius="28dp"
+    app:cardElevation="4dp"
+    app:strokeWidth="0dp">
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:gravity="center_vertical"
-            android:orientation="horizontal">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
 
-            <ImageButton
-                android:id="@+id/profile_button"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:layout_marginStart="4dp"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:src="@drawable/ic_person_circle"
-                app:tint="?attr/colorOnSurfaceVariant"/>
+        <ImageButton
+            android:id="@+id/profile_button"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_marginStart="4dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@drawable/ic_person_circle"
+            app:tint="?attr/colorOnSurfaceVariant"/>
 
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="12dp"
-                android:layout_weight="1"
-                android:text="Search events..."
-                android:textAppearance="?attr/textAppearanceBodyLarge"
-                android:textColor="?attr/colorOnSurfaceVariant" />
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
+            android:layout_weight="1"
+            android:text="Search events..."
+            android:textAppearance="?attr/textAppearanceBodyLarge"
+            android:textColor="?attr/colorOnSurfaceVariant" />
 
-            <ImageButton
-                android:id="@+id/filter_button"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:layout_marginEnd="4dp"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:src="@drawable/ic_tune"
-                app:tint="?attr/colorOnSurfaceVariant"/>
-        </LinearLayout>
-    </com.google.android.material.card.MaterialCardView>
+        <ImageButton
+            android:id="@+id/filter_button"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_marginEnd="4dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@drawable/ic_tune"
+            app:tint="?attr/colorOnSurfaceVariant"/>
+    </LinearLayout>
+</com.google.android.material.card.MaterialCardView>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fab_my_location"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="16dp"
+        android:layout_marginBottom="16dp"
         app:srcCompat="@drawable/ic_my_location"
         app:layout_anchor="@id/bottom_sheet"
-        app:layout_anchorGravity="top|end"
-        android:layout_marginBottom="16dp"/>
+        app:layout_anchorGravity="top|end"/>
 
     <include
         android:id="@+id/bottom_sheet"

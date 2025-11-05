@@ -62,6 +62,21 @@
             android:exported="false"
             android:label="Select Location" />
 
-    </application>
+        <activity
+            android:name=".VolunteerRegistrationActivity"
+            android:exported="false"
+            android:label="Volunteer Registration"/>
 
+        <activity
+            android:name=".ViewRegistrationsActivity"
+            android:exported="false"
+            android:label="View Registrations"
+            android:parentActivityName=".OrganizerDashboardActivity"/>
+        <activity
+            android:name=".SearchActivity"
+            android:exported="false"
+            android:label="Search Events"
+            android:parentActivityName=".MainActivity"/>
+
+    </application>
 </manifest>
