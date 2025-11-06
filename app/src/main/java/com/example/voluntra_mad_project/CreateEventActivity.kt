@@ -21,13 +21,17 @@ import java.util.*
 
 class CreateEventActivity : AppCompatActivity() {
 
+    // --- THIS IS THE CORRECTED LINE ---
     private lateinit var binding: ActivityCreateEventBinding
+    // --- END CORRECTION ---
+
     private lateinit var auth: FirebaseAuth
     private lateinit var firestore: FirebaseFirestore
 
     private var eventLocation: GeoPoint? = null
     private var selectedDate: Calendar = Calendar.getInstance()
 
+    // Location picker launcher
     private val pickLocationLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         if (result.resultCode == Activity.RESULT_OK) {
             val data = result.data
@@ -74,39 +78,49 @@ class CreateEventActivity : AppCompatActivity() {
         val timeStr = binding.editTextTime.text.toString().trim()
         val description = binding.editTextEventDescription.text.toString().trim()
         val eventType = binding.editTextEventType.text.toString().trim()
+        val spotsAvailableStr = binding.editTextSpotsAvailable.text.toString().trim()
+        val skillsNeededStr = binding.editTextSkillsNeeded.text.toString().trim()
+        val whatToBringStr = binding.editTextWhatToBring.text.toString().trim() // Get new field
         val organizerId = auth.currentUser?.uid
 
         if (title.isEmpty() || category.isEmpty() || dateStr.isEmpty() || timeStr.isEmpty() ||
-            eventLocation == null || description.isEmpty() || eventType.isEmpty() || organizerId == null) {
-            Toast.makeText(this, "Please fill all fields and pick a location.", Toast.LENGTH_LONG).show()
+            eventLocation == null || description.isEmpty() || eventType.isEmpty() ||
+            spotsAvailableStr.isEmpty() || organizerId == null) {
+            Toast.makeText(this, "Please fill all required fields and pick a location.", Toast.LENGTH_LONG).show()
+            return
+        }
+
+        val spotsAvailable = try {
+            spotsAvailableStr.toInt()
+        } catch (e: NumberFormatException) {
+            Toast.makeText(this, "Please enter a valid number for spots.", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        if (spotsAvailable <= 0) {
+            Toast.makeText(this, "Spots available must be greater than zero.", Toast.LENGTH_SHORT).show()
             return
         }
 
         val eventDateTime = selectedDate.time
         val eventTimestamp = Timestamp(eventDateTime)
+        val skillsList = convertSkillsStringToList(skillsNeededStr)
 
         saveEventToFirestore(
             title, category, eventTimestamp, eventLocation!!, description,
-            eventType, organizerId
+            eventType, organizerId, spotsAvailable, skillsList, whatToBringStr
         )
     }
 
-    // Updated save function to fetch correct organizationName
     private fun saveEventToFirestore(
         title: String, category: String, eventTimestamp: Timestamp, location: GeoPoint,
-        description: String, eventType: String, organizerId: String
+        description: String, eventType: String, organizerId: String, spotsAvailable: Int,
+        skillsList: List<String>?, whatToBring: String
     ) {
-        // 1. Fetch the organizer's USER document
         firestore.collection("users").document(organizerId).get()
             .addOnSuccessListener { userDocument ->
-                // 2. Get the "organizationName" field from their profile
-                val organizationName = if (userDocument != null && userDocument.exists()) {
-                    userDocument.getString("organizationName") ?: "Unnamed Organization" // Use org name
-                } else {
-                    "Unknown Organization" // Fallback
-                }
+                val organizationName = userDocument?.getString("organizationName") ?: "Unknown Organizer"
 
-                // 3. Create the Event object with the fetched organizationName
                 val newEvent = Event(
                     title = title,
                     category = category,
@@ -115,16 +129,15 @@ class CreateEventActivity : AppCompatActivity() {
                     description = description,
                     eventType = eventType,
                     organizerId = organizerId,
-                    organizationName = organizationName, // Use the fetched org name
-                    skillsNeeded = null,
-                    whatToBring = null,
-                    spotsAvailable = 50,
+                    organizationName = organizationName,
+                    skillsNeeded = skillsList,
+                    whatToBring = if (whatToBring.isBlank()) null else whatToBring, // Save as null if empty
+                    spotsAvailable = spotsAvailable,
                     title_lowercase = title.lowercase(Locale.getDefault()),
                     description_lowercase = description.lowercase(Locale.getDefault()),
                     organizationName_lowercase = organizationName.lowercase(Locale.getDefault())
                 )
 
-                // 4. Save the event to the 'events' collection
                 firestore.collection("events")
                     .add(newEvent)
                     .addOnSuccessListener { documentReference ->
@@ -143,7 +156,17 @@ class CreateEventActivity : AppCompatActivity() {
             }
     }
 
-    // --- Date & Time Picker Logic (Unchanged) ---
+    // Helper Function to convert skills string
+    private fun convertSkillsStringToList(skills: String): List<String>? {
+        if (skills.isBlank()) {
+            return null
+        }
+        return skills.split(",")
+            .map { it.trim() }
+            .filter { it.isNotEmpty() }
+    }
+
+    // --- Date & Time Picker Logic ---
     private fun showDatePicker() {
         val currentCalendar = Calendar.getInstance()
         DatePickerDialog(this, { _, year, month, dayOfMonth ->

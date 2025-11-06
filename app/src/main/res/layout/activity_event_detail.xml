@@ -150,7 +150,7 @@
             android:layout_marginTop="16dp"
             android:textAppearance="?attr/textAppearanceLabelLarge"
             android:textColor="?attr/colorOnSurfaceVariant"
-            tools:text="Spots Available: 15 / 50" />
+            tools:text="Currently Registered: 15 / 50" />
 
         <Button
             android:id="@+id/button_register_event"
