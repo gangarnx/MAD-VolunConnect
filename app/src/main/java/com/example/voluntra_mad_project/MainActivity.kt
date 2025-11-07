@@ -1,22 +1,22 @@
 package com.example.voluntra_mad_project
 
-import android.Manifest
+import android.Manifest // Import Manifest
 import android.content.Intent
-import android.content.pm.PackageManager
+import android.content.pm.PackageManager // Import PackageManager
 import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.util.Log
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
-import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.result.contract.ActivityResultContracts // Import ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.voluntra_mad_project.databinding.ActivityMainBinding
 import com.example.voluntra_mad_project.models.Event
-import com.google.android.gms.location.FusedLocationProviderClient
-import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.FusedLocationProviderClient // Import FusedLocationProviderClient
+import com.google.android.gms.location.LocationServices // Import LocationServices
 import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
@@ -33,6 +33,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private lateinit var eventsAdapter: EventsAdapter
     private val mapMarkers = mutableListOf<Marker>()
+    private var userLocationMarker: Marker? = null // Marker for the user's location
     private val TAG = "MainActivity"
 
     private lateinit var fusedLocationClient: FusedLocationProviderClient
@@ -41,13 +42,16 @@ class MainActivity : AppCompatActivity() {
     ) { permissions ->
         when {
             permissions.getOrDefault(Manifest.permission.ACCESS_FINE_LOCATION, false) -> {
+                // Precise location access granted.
                 fetchCurrentLocation()
             }
             permissions.getOrDefault(Manifest.permission.ACCESS_COARSE_LOCATION, false) -> {
+                // Only approximate location access granted.
                 fetchCurrentLocation()
             }
             else -> {
-                Toast.makeText(this, "Location permission denied", Toast.LENGTH_SHORT).show()
+                // No location access granted.
+                Toast.makeText(this, "Location permission denied. Showing default location.", Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -55,33 +59,36 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        // OSMDroid Configuration
         Configuration.getInstance().load(applicationContext, getPreferences(MODE_PRIVATE))
         Configuration.getInstance().userAgentValue = applicationContext.packageName
 
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        // Initialize location client
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
 
         setupMap()
         setupRecyclerView()
         setupFilterChips()
         loadEventsFromFirestore()
-        setupMapLegend() // Setup the map legend
+        setupMapLegend()
+
+        // Ask for location permission as soon as the app starts.
+        checkAndRequestLocationPermission()
 
         // --- Click Listeners ---
         binding.searchCard.setOnClickListener {
             startActivity(Intent(this, SearchActivity::class.java))
         }
 
-        // Click listener for 'profileButton' REMOVED
-
         binding.filterButton.setOnClickListener {
             startActivity(Intent(this, SettingsActivity::class.java))
         }
 
         binding.fabMyLocation.setOnClickListener {
-            checkAndRequestLocationPermission()
+            checkAndRequestLocationPermission() // Re-center on user
         }
     }
 
@@ -95,8 +102,10 @@ class MainActivity : AppCompatActivity() {
         ) == PackageManager.PERMISSION_GRANTED
 
         if (fineLocationGranted || coarseLocationGranted) {
+            // Permission is already granted
             fetchCurrentLocation()
         } else {
+            // Permission is not granted, request it
             locationPermissionRequest.launch(
                 arrayOf(
                     Manifest.permission.ACCESS_FINE_LOCATION,
@@ -107,6 +116,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun fetchCurrentLocation() {
+        // Check permissions again (required by Android framework)
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
             ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             Log.w(TAG, "fetchCurrentLocation called without permissions.")
@@ -116,28 +126,52 @@ class MainActivity : AppCompatActivity() {
         fusedLocationClient.lastLocation
             .addOnSuccessListener { location ->
                 if (location != null) {
+                    // Location found
                     val userGeoPoint = GeoPoint(location.latitude, location.longitude)
-                    animateToLocation(userGeoPoint)
-                    Toast.makeText(this, "Centering on your location", Toast.LENGTH_SHORT).show()
+                    animateToLocation(userGeoPoint, 14.5) // Zoom to city-level
+                    updateUserLocationMarker(userGeoPoint) // Add/update blue marker
+                    Toast.makeText(this, "Showing events near you", Toast.LENGTH_SHORT).show()
                 } else {
+                    // Location is null (e.g., GPS turned off, or new emulator)
                     Toast.makeText(this, "Could not get current location. Is GPS on?", Toast.LENGTH_LONG).show()
                 }
             }
             .addOnFailureListener { e ->
+                // Handle failure
                 Log.e(TAG, "Failed to get location", e)
                 Toast.makeText(this, "Error getting location", Toast.LENGTH_SHORT).show()
             }
     }
 
-    private fun animateToLocation(geoPoint: GeoPoint) {
+    // Function to add/move user's location marker
+    private fun updateUserLocationMarker(geoPoint: GeoPoint) {
+        // Remove the old marker if it exists
+        userLocationMarker?.let { binding.mapView.overlays.remove(it) }
+
+        // Create a new marker
+        userLocationMarker = Marker(binding.mapView)
+        userLocationMarker?.position = geoPoint
+        userLocationMarker?.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_CENTER)
+        userLocationMarker?.title = "My Location"
+        // Set the custom blue icon
+        userLocationMarker?.icon = ContextCompat.getDrawable(this, R.drawable.ic_my_location_marker)
+
+        // Add the new marker to the map
+        binding.mapView.overlays.add(userLocationMarker)
+        binding.mapView.invalidate() // Refresh the map
+    }
+
+    // Updated to accept a zoom level
+    private fun animateToLocation(geoPoint: GeoPoint, zoomLevel: Double) {
         val mapController = binding.mapView.controller
-        mapController.setZoom(16.0) // Zoom in closer
+        mapController.setZoom(zoomLevel) // Use the specified zoom level
         mapController.animateTo(geoPoint)
     }
 
     private fun setupMap() {
         val mapController = binding.mapView.controller
         mapController.setZoom(12.5)
+        // This is the default location if permission is denied
         val startPoint = GeoPoint(19.0760, 72.8777)
         mapController.setCenter(startPoint)
         binding.mapView.setMultiTouchControls(true)
@@ -275,6 +309,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    // --- Map Lifecycle ---
     override fun onResume() {
         super.onResume()
         binding.mapView.onResume()

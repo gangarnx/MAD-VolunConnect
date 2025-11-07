@@ -4,31 +4,31 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.example.voluntra_mad_project.databinding.ItemRegistrationBinding // Use the correct binding class
+import com.example.voluntra_mad_project.databinding.ItemRegistrationBinding
 
-// Simple data class to hold registration info needed for display
+// ** 1. Update data class **
 data class RegistrationInfo(
     val volunteerName: String? = null,
     val volunteerEmail: String? = null,
-    val volunteerPhone: String? = null
+    val volunteerPhone: String? = null,
+    val emergencyContactName: String? = null,
+    val emergencyContactPhone: String? = null
 )
 
 class RegistrationAdapter(private var registrations: List<RegistrationInfo>) :
     RecyclerView.Adapter<RegistrationAdapter.RegistrationViewHolder>() {
 
-    // ViewHolder holds references to views in item_registration.xml
     inner class RegistrationViewHolder(val binding: ItemRegistrationBinding) : RecyclerView.ViewHolder(binding.root)
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RegistrationViewHolder {
-        // Inflate the layout for each registration item
         val binding = ItemRegistrationBinding.inflate(LayoutInflater.from(parent.context), parent, false)
         return RegistrationViewHolder(binding)
     }
 
-    override fun getItemCount(): Int = registrations.size // Return total number of registrations
+    override fun getItemCount(): Int = registrations.size
 
     override fun onBindViewHolder(holder: RegistrationViewHolder, position: Int) {
-        val registration = registrations[position] // Get data for this position
+        val registration = registrations[position]
         holder.binding.textVolunteerName.text = registration.volunteerName ?: "N/A"
         holder.binding.textVolunteerEmail.text = registration.volunteerEmail ?: "N/A"
 
@@ -39,11 +39,20 @@ class RegistrationAdapter(private var registrations: List<RegistrationInfo>) :
         } else {
             holder.binding.textVolunteerPhone.visibility = View.GONE
         }
+
+        // ** 2. Add logic for emergency contacts **
+        if (!registration.emergencyContactName.isNullOrEmpty() && !registration.emergencyContactPhone.isNullOrEmpty()) {
+            holder.binding.textEmergencyHeader.visibility = View.VISIBLE
+            holder.binding.textEmergencyContact.text = "${registration.emergencyContactName} (${registration.emergencyContactPhone})"
+            holder.binding.textEmergencyContact.visibility = View.VISIBLE
+        } else {
+            holder.binding.textEmergencyHeader.visibility = View.GONE
+            holder.binding.textEmergencyContact.visibility = View.GONE
+        }
     }
 
-    // Function to update the list of registrations shown
     fun submitList(newRegistrations: List<RegistrationInfo>) {
         registrations = newRegistrations
-        notifyDataSetChanged() // Refresh the RecyclerView
+        notifyDataSetChanged()
     }
 }

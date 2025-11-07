@@ -71,15 +71,30 @@ class VolunteerRegistrationActivity : AppCompatActivity() {
         val emergencyPhone = binding.editTextEmergencyPhone.text.toString().trim()
         val agreementChecked = binding.checkboxAgreement.isChecked
 
-        // Validation
+        // --- Validation ---
         if (volunteerName.isEmpty() || volunteerEmail.isEmpty()) {
             Toast.makeText(this, "Please enter your name and email.", Toast.LENGTH_SHORT).show()
             return
         }
+
+        // Emergency contact validation (mandatory)
         if (emergencyName.isEmpty() || emergencyPhone.isEmpty()) {
             Toast.makeText(this, "Please enter emergency contact details.", Toast.LENGTH_SHORT).show()
             return
         }
+
+        // Emergency phone validation (must be 10 digits)
+        if (emergencyPhone.length != 10 || !emergencyPhone.all { it.isDigit() }) {
+            Toast.makeText(this, "Please enter a valid 10-digit emergency phone number.", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        // Optional phone validation (if not empty, must be 10 digits)
+        if (volunteerPhone.isNotEmpty() && (volunteerPhone.length != 10 || !volunteerPhone.all { it.isDigit() })) {
+            Toast.makeText(this, "Please enter a valid 10-digit phone number or leave it blank.", Toast.LENGTH_SHORT).show()
+            return
+        }
+
         if (!agreementChecked) {
             Toast.makeText(this, "You must agree to the terms.", Toast.LENGTH_SHORT).show()
             return
@@ -89,7 +104,7 @@ class VolunteerRegistrationActivity : AppCompatActivity() {
             return
         }
 
-        // Create registration data map (T-shirt size removed)
+        // --- Create registration data map ---
         val registrationData = hashMapOf(
             "eventId" to eventId,
             "eventTitle" to eventTitle,
@@ -103,7 +118,7 @@ class VolunteerRegistrationActivity : AppCompatActivity() {
             "registrationTime" to FieldValue.serverTimestamp()
         )
 
-        // Save to Firestore
+        // --- Save to Firestore ---
         db.collection("registrations")
             .add(registrationData)
             .addOnSuccessListener {
